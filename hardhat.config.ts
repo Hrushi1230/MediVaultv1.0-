@@ -4,34 +4,38 @@ import "@nomicfoundation/hardhat-ethers";
 import * as dotenv from "dotenv";
 import "hardhat-gas-reporter";
 import "@typechain/hardhat";
-import "@nomicfoundation/hardhat-chai-matchers"; // instead of Waffle
+import "@nomicfoundation/hardhat-chai-matchers";
 
 dotenv.config();
 
+// Dynamically add sepolia only if both values exist
+const networks: HardhatUserConfig["networks"] = {
+  hardhat: {},
+};
+
+if (process.env.SEPOLIA_RPC && process.env.SEPOLIA_KEY) {
+  networks.sepolia = {
+    url: process.env.SEPOLIA_RPC,
+    accounts: [process.env.SEPOLIA_KEY],
+  };
+}
+
 const config: HardhatUserConfig = {
   solidity: "0.8.24",
-  defaultNetwork: "hardhat", // Only local in CI
-
-  networks: {
-    sepolia: process.env.SEPOLIA_RPC && process.env.SEPOLIA_KEY
-      ? {
-          url: process.env.SEPOLIA_RPC,
-          accounts: [process.env.SEPOLIA_KEY],
-        }
-      : undefined,
-  },
+  defaultNetwork: "hardhat",
+  networks,
   etherscan: {
     apiKey: {
-      sepolia: process.env.ETHERSCAN_API_KEY!,
+      sepolia: process.env.ETHERSCAN_API_KEY ?? "",
     },
   },
   gasReporter: {
     enabled: true,
-    currency: "INR", // or "USD"
+    currency: "INR",
     outputFile: "gas-report.txt",
-    noColors: true
+    noColors: true,
   },
-   typechain: {
+  typechain: {
     outDir: "typechain-types",
     target: "ethers-v6",
   },

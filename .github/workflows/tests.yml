@@ -1,44 +1,35 @@
-name: MediVault Contracts CI
+name: Hardhat Test
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    paths:
+      - "**.sol"
+      - "test/**"
+      - "hardhat.config.ts"
+      - ".github/workflows/contracts-test.yml"
 
 jobs:
-  test:
-    name: 🔁 Hardhat Test
+  Hardhat-Test:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [18.x]
-
     steps:
-      - name: ⬇️ Checkout Repository
-        uses: actions/checkout@v3
+      - name: 🛎️ Checkout repo
+        uses: actions/checkout@v4
 
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v3
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "20"
 
-      - name: 📦 Install Dependencies
-        run: npm install
-        working-directory: contracts
+      - name: 📦 Install dependencies
+        run: npm ci
 
-      - name: ⚒️ Compile Contracts
-        run: npx hardhat compile
-        working-directory: contracts
-
-      - name: 🧪 Run Tests
+      - name: 🧪 Run Hardhat tests
         run: npx hardhat test
-        working-directory: contracts
 
-      - name: 📉 Upload Gas Report
+      - name: 📤 Upload test results (optional)
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: gas-report
-          path: contracts/gas-report.txt
+          name: test-results
+          path: test-results/
